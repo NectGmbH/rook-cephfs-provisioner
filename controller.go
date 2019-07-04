@@ -17,7 +17,7 @@ import (
 	"k8s.io/client-go/util/workqueue"
 )
 
-// Controller represents a controller used for approving csrs
+// Controller represents a controller used for binding pvcs to rook cephfs pvs
 type Controller struct {
 	kubeClient clientset.Interface
 
@@ -29,7 +29,7 @@ type Controller struct {
 	queue workqueue.RateLimitingInterface
 }
 
-// NewController creates a new csr approving controller
+// NewController creates a new rook cephfs provisioning controller
 func NewController(
 	client clientset.Interface,
 	informer informers.PersistentVolumeClaimInformer,
@@ -42,7 +42,7 @@ func NewController(
 		handler:    handler,
 	}
 
-	// Manage the addition/update of certificate requests
+	// Manage the addition/update of pvcs
 	informer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			pvc := obj.(*v1.PersistentVolumeClaim)
