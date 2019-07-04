@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rook-cephfs-provisioner
+spec:
+  replicas: 1 # Since there's atm no leaderelection implemented, it isnt safe to run multiple instances
+  selector:
+    matchLabels:
+      name: rook-cephfs-provisioner
+  template:
+    metadata:
+      labels:
+        name: rook-cephfs-provisioner
+    spec:
+      serviceAccountName: rook-cephfs-provisioner
+      containers:
+      - name: rook-cephfs-provisioner
+        args:
+        - '-storage-class'
+        - '{{ .Values.storageClassName }}'
+        - '-fs-name'
+        - '{{ .Values.fsName }}'
+        - '-cluster-namespace'
+        - '{{ .Values.clusterNamespace }}'
+        - '-local-path'
+        - '/cephfs'
+        - '-alsologtostderr'
+        - '-v'
+        {{- if .Values.verbose }}
+        - '4'
+        {{- else}}
+        - '3'
+        {{- end }}
+        image: {{ .Values.image }}
+        volumeMounts:
+        - name: sharedfs
+          mountPath: /cephfs
+      volumes:
+      - name: sharedfs
+        flexVolume:
+          driver: ceph.rook.io/rook
+          fsType: ceph
+          options:
+            fsName: {{ .Values.fsName }}
+            clusterNamespace: {{ .Values.clusterNamespace }}

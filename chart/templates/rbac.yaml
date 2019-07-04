@@ -1,0 +1,32 @@
+{{- if .Values.rbac.enabled }}
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-cephfs-provisioner
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rook-cephfs-provisioner
+  namespace: {{.Release.Namespace}}
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-cephfs-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: rook-cephfs-provisioner
+    namespace: {{.Release.Namespace}}
+roleRef:
+  kind: ClusterRole
+  name: rook-cephfs-provisioner
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,0 +1,3 @@
+name: rook-cephfs-provisioner
+description: Dynamic provisioner for rooks cephfs
+version: 0.1.0
